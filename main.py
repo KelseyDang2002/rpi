@@ -47,21 +47,22 @@ def parameters(on_time, off_time):
     return on_delay, off_delay, num_cycles
 
 def flash(on_time, off_time, num_cycles):
-    print("Calling flash function...")
+    print("Calling flash function...\n")
 
     # convert params to string before sending to RP2040
     for i in range(num_cycles):
-        xiao.write(b'0')
-        print("Light Off")
-        xiao.write(str(off_time).encode()) # send on delay to RP2040
-
         xiao.write(b'1')
         print("Light On")
-        xiao.write(str(on_time).encode()) # send off delay to RP2040
+        xiao.write(str(on_time).encode()) # send on delay to RP2040
+
+        xiao.write(b'0')
+        print("Light Off")
+        xiao.write(str(off_time).encode()) # send off delay to RP2040
+
 
 while True:
     try:
-        command = input("Enter 'on' or 'off' to control sign: ").strip()
+        command = input("\nEnter 'on' or 'off' to control sign: ").strip()
         control_state(command)
 
         response = xiao.readline().decode('utf-8').strip()
