@@ -101,68 +101,65 @@ def offState():
         print(f"XIAO RP2040 says: {response}")
     return
 
+def helpMenu():
+    print("********** HELP MENU **********")
+    print("\nFormat for running command via CLI:")
+    print("\tpython [file.py] [action] [on_delay] [off_delay] [mode] [value]")
+    print("\n\t0 [file.py] (required)")
+    print("\t\t- name of the script file")
+    print("\n\t1 [action] (required)")
+    print("\t\ton - tell RP2040 microcontroller to turn on")
+    print("\t\toff - tell RP2040 microcontroller to turn off")
+    print("\t\thelp/h - help menu/how to run script")
+    print("\n\t2 [on_delay]")
+    print("\t\t- the time for LED to be turned on in milliseconds")
+    print("\t\t- default is 800ms unless specified")
+    print("\n\t3 [off_delay]")
+    print("\t\t- the time for LED to be turned off in millisecondss")
+    print("\t\t- default is 200ms unless specified")
+    print("\n\t4 [mode] (required if 'on' is selected)")
+    print("\t\tcycle")
+    print("\t\t\t- the number of cycles (on and off) for the LED to flash")
+    print("\t\t\t- default is 100 unless specified")
+    # print("\t\t\t- either number of cycles or a timer is used, using both not allowed")
+    # print("\t\ttimer")
+    # print("\t\t\t- the amount of time for the LED to flash")
+    # print("\t\t\t- default is infinite unless specified")
+    # print("\t\t\t- either a timer or number of cycles is used, using both not allowed")
+    # print("\t\t\t- undecided if it is seconds, minutes, hours, etc.")
+    print("\n\t5 [value]")
+    print("\t\t- a number either for number of cycles or amount of time")
+
+# function to handle command line arguments
+def handleCommands():
+    print(f"\nEntered: {str(sys.argv)}\n")
+        
+    action = sys.argv[1].lower()
+    if action == 'on':
+        # TODO: tell RP2040 to set PIN to HIGH (on)
+        # TODO: takes in on_delay, off_delay, mode, and value as parameters
+        onState()
+    elif action == 'off':
+        # TODO: tell RP2040 to set PIN to LOW (off)
+        offState()
+    elif action == 'help' or action == 'h':
+        # TODO: displays help menu on how to run program
+        helpMenu()
+    else:
+        print(f"Action Error: '{action}' is an invalid argument.")
+        sys.exit(1)
+
 # main loop
 while True:
     try:
-        if len(sys.argv) < 6:
-            print(f"Run Error: '{sys.argv[0]}' requires {6 - len(sys.argv)} more command line argument(s).")
+        if len(sys.argv) < 2:
+            print(f"Run Error: '{sys.argv[0]}' requires {2 - len(sys.argv)} more command line argument(s).")
             sys.exit(1)
         
-        print(f"Entered: {str(sys.argv)}")
-        # print(f"File: {sys.argv[0]}")
-        # print(f"Action: {sys.argv[1]}")
-        # print(f"On Delay: {sys.argv[2]}")
-        # print(f"Off Delay: {sys.argv[3]}")
-        # print(f"Mode: {sys.argv[4]}")
-        # print(f"Value: {sys.argv[5]}")
-
-        command = input("\nEnter 'on' or 'off' to control sign or 'q' to quit program: ").strip().lower()
-
-        # TODO: argc & argv implementation
-        '''
-        Running command via CLI:
-            python [file.py] [action] [on_delay] [off_delay] [mode] [value]
-
-            0 [file.py] (required)
-                - name of the script file
-            
-            1 [action] (required)
-                on - turn on RP2040 microcontroller
-                off - turn off RP2040 microcontroller
-                help - help menu/how to run script
-            
-            2 [on_delay]
-                - the time for LED to be turned on in milliseconds
-                - default is 800ms unless specified
-            
-            3 [off_delay]
-                - the time for LED to be turned off in milliseconds
-                - default is 200ms unless specified
-
-            4 [mode]
-                cycle
-                    - the number of cycles (on and off) for the LED to flash
-                    - default is 0 unless specified
-                    - either number of cycles or a timer is used, using both not allowed
-                
-                timer
-                    - the amount of time for the LED to flash
-                    - default is infinite unless specified
-                    - either a timer or number of cycles is used, using both not allowed
-                    - unsure if it should be in seconds, minutes, hours, etc.
-
-            5 [value] - a number either for number of cycles or amount of time
-        '''
-
-        if command == "on":
-            onState()
-        elif command == "off":
-            offState()
-        elif command == "q":
-            print("\nExiting program...")
-            sys.exit(0)
-        else:
-            print("Invalid command. Try again.")
+        handleCommands()
+        print("\nExiting program...")
+        sys.exit(0)
         
     except KeyboardInterrupt:
         print("\n\nKeyboardInterrupt: Program interrupted by user.")
+        sys.exit(1)
