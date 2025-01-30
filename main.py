@@ -93,6 +93,7 @@ while True:
     try:
         command = input("Enter 'on' or 'off' to control sign or 'q' to quit program: ").strip().lower()
 
+        # TODO: argv implementation
         if command == "on":
             onState()
         elif command == "off":
