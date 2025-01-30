@@ -13,15 +13,42 @@ NUM_CYCLES = 100
 xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
 time.sleep(1)
 
+# function to handle cycle mode or timer mode
+def mode(num_cycles):
+    try:
+        # TODO: timer mode
+        mode = sys.argv[4]
+        if mode == 'cycle' or mode == 'c':
+            cycles = int(sys.argv[5])
+            
+            # cycles = int(input("Number of cycles: "))
+            if cycles == -1:
+                print("Use default number of cycles")
+            elif cycles > 0:
+                num_cycles = cycles
+            else:
+                return
+        
+        else:
+            print(f"Mode Error: '{mode}' is an invalid argument.")
+            sys.exit(1)
+                    
+        print(f"\tNumber of cycles: {num_cycles}\n")
+        return num_cycles
+    
+    except IndexError:
+        print("IndexError: Missing a mode command line argument.")
+        sys.exit(1)
+
 # prompt user for parameters
-def promptParameters(on_time, off_time, num_cycles):
+def delayParameters(on_time, off_time):
     while True:
         try:
-            # on_delay = int(sys.argv[2]) # convert on_delay argument to int
             
             print("Enter -1 to use default parameters.")
 
-            on_delay = int(input("On delay (ms): "))
+            on_delay = int(sys.argv[2]) # convert on_delay argument to int
+            # on_delay = int(input("On delay (ms): "))
             if on_delay > 0:
                 on_time = on_delay
             elif on_delay == -1:
@@ -29,7 +56,8 @@ def promptParameters(on_time, off_time, num_cycles):
             else:
                 return
             
-            off_delay = int(input("Off delay (ms): "))
+            off_delay = int(sys.argv[3]) # convert off_delay argument to int
+            # off_delay = int(input("Off delay (ms): "))
             if off_delay > 0:
                 off_time = off_delay
             elif off_delay == -1:
@@ -37,19 +65,16 @@ def promptParameters(on_time, off_time, num_cycles):
             else:
                 return
             
-            cycles = int(input("Number of cycles: "))
-            if cycles > 0:
-                num_cycles = cycles
-            elif cycles == -1:
-                print("Use default number of cycles")
-            else:
-                return
-            
-            print(f"Selected:\n\tOn delay: {on_time}ms\n\tOff_delay: {off_time}ms\n\tCycles: {num_cycles}\n")
-            return on_time, off_time, num_cycles
+            print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
+            return on_time, off_time
+        
+        except IndexError:
+            print(f"IndexError: Missing on_delay or off_delay arguments.")
+            sys.exit(1)
 
         except ValueError:
             print("ValueError: Invalid input. Only numbers allowed.")
+            sys.exit(1)
 
         except KeyboardInterrupt:
             print("\n\nKeyboardInterrupt: Program interrupted by user.")
@@ -88,8 +113,9 @@ def onState():
         if response:
             print(f"XIAO RP2040 says: {response}\n")
 
-        on_delay, off_delay, num_cycles = promptParameters(ON_TIME, OFF_TIME, NUM_CYCLES)
-        flash(on_delay, off_delay, num_cycles)
+        on_delay, off_delay = delayParameters(ON_TIME, OFF_TIME)
+        value = mode(NUM_CYCLES)
+        flash(on_delay, off_delay, value)
         return
     
     except TypeError:
@@ -142,11 +168,9 @@ def handleCommands():
     action = sys.argv[1].lower()
     
     if action == 'on':
-        # TODO: tell RP2040 to set PIN to HIGH (on)
-        # TODO: takes in on_delay, off_delay, mode, and value as parameters
+        # TODO: takes in on_delay, off_delay, mode, and value as parameters as argv
         onState()
     elif action == 'off':
-        # TODO: tell RP2040 to set PIN to LOW (off)
         offState()
     elif action == 'help' or action == 'h':
         # TODO: displays help menu on how to run program
@@ -158,6 +182,7 @@ def handleCommands():
 # main loop
 while True:
     try:
+        # TODO: define minimum an maximum number of argument for both on state and off state
         if len(sys.argv) < 2:
             print(f"Run Error: '{sys.argv[0]}' requires {2 - len(sys.argv)} more command line argument(s).")
             sys.exit(1)
