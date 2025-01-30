@@ -108,6 +108,7 @@ def flash(on_delay, off_delay, num_cycles):
 def onState():
     try:
         xiao.write(b'1') # tell RP2040 to turn on MOSFET
+        time.sleep(1)
 
         response = xiao.readline().decode('utf-8').strip()
         if response:
