@@ -45,40 +45,51 @@ def promptParameters(on_time, off_time, num_cycles):
             
             print(f"Selected:\n\tOn delay: {on_time}ms\n\tOff_delay: {off_time}ms\n\tCycles: {num_cycles}\n")
             return on_time, off_time, num_cycles
-        
-        except TypeError:
-            print("Invalid input. Only integer types allowed.")
 
         except ValueError:
-            print("Invalid input. Only numbers allowed.")
+            print("ValueError: Invalid input. Only numbers allowed.")
+
+        except KeyboardInterrupt:
+            print("\n\nKeyboardInterrupt: Program interrupted by user.")
+            break
 
 # function for flashing LED
 def flash(on_delay, off_delay, num_cycles):
     print("Calling flash function...\n")
     
     for i in range(num_cycles):
-        xiao.write(b'0')
-        time.sleep(off_delay / 1000)
-        # TODO: send off delay to RP2040
-        
-        xiao.write(b'1')
-        time.sleep(on_delay / 1000)
-        # TODO: send on delay to RP2040
-        
-        print(f"{i + 1} cycle(s) completed")
+        try:
+            xiao.write(b'0')
+            time.sleep(off_delay / 1000)
+            # TODO: send off delay to RP2040
+            
+            xiao.write(b'1')
+            time.sleep(on_delay / 1000)
+            # TODO: send on delay to RP2040
+            
+            print(f"{i + 1} cycle(s) completed")
+
+        except KeyboardInterrupt:
+            print("\n\nKeyboardInterrupt: Program interrupted by user.")
+            break
     return
     
 # turned on
 def onState():
-    xiao.write(b'1') # tell RP2040 to turn on MOSFET
+    try:
+        xiao.write(b'1') # tell RP2040 to turn on MOSFET
 
-    response = xiao.readline().decode('utf-8').strip()
-    if response:
-        print(f"XIAO RP2040 says: {response}\n")
+        response = xiao.readline().decode('utf-8').strip()
+        if response:
+            print(f"XIAO RP2040 says: {response}\n")
 
-    on_delay, off_delay, num_cycles = promptParameters(ON_TIME, OFF_TIME, NUM_CYCLES)
-    flash(on_delay, off_delay, num_cycles)
-    return
+        on_delay, off_delay, num_cycles = promptParameters(ON_TIME, OFF_TIME, NUM_CYCLES)
+        flash(on_delay, off_delay, num_cycles)
+        return
+    
+    except TypeError:
+        print("TypeError: cannot unpack non-iterable NoneType object")
+        return
         
 # turned off
 def offState():
@@ -86,12 +97,13 @@ def offState():
 
     response = xiao.readline().decode('utf-8').strip()
     if response:
-        print(f"XIAO RP2040 says: {response}\n")
+        print(f"XIAO RP2040 says: {response}")
     return
 
+# main loop
 while True:
     try:
-        command = input("Enter 'on' or 'off' to control sign or 'q' to quit program: ").strip().lower()
+        command = input("\nEnter 'on' or 'off' to control sign or 'q' to quit program: ").strip().lower()
 
         # TODO: argv implementation
         if command == "on":
@@ -103,23 +115,6 @@ while True:
             sys.exit(0)
         else:
             print("Invalid command. Try again.")
-
-        # XIAO sends byte back to RPi
-        # incomingChar = xiao.read().decode('utf-8')
-        # if incomingChar == '0':
-        #     print(f"XIAO write: {incomingChar}")
-
-        # elif incomingChar == '1':
-        #     print(f"XIAO write: {incomingChar}")
-            
-        #     on_time, off_time, num_cycles = parameters(ON_TIME, OFF_TIME)
-
-        #     flash(on_time, off_time, num_cycles)
-
-        # else:
-        #     print("No incoming char.")
-        #     break
         
     except KeyboardInterrupt:
-        print("\n\nProgram interrupted by user.")
-        # sys.exit()
+        print("\n\nKeyboardInterrupt: Program interrupted by user.")
