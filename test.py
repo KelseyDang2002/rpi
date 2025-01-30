@@ -8,6 +8,7 @@ BAUD = 115200
 ON_TIME = 800
 OFF_TIME = 200
 NUM_CYCLES = 100
+MODE = 'c'
 
 # xiao = serial.Serial(port='/dev/ttyACM0', baudrate=BAUD, timeout=1) # linux
 xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
@@ -170,6 +171,7 @@ def handleCommands():
     
     if action == 'on':
         # TODO: takes in on_delay, off_delay, mode, and value as parameters as argv
+        # if no parameters are specified, use default
         onState()
     elif action == 'off':
         offState()
@@ -183,6 +185,8 @@ def handleCommands():
 # main loop
 while True:
     try:
+        print(f"\nExecuting program {sys.argv[0]}...")
+        
         # TODO: define minimum an maximum number of argument for both on state and off state
         if len(sys.argv) < 2:
             print(f"Run Error: '{sys.argv[0]}' requires {2 - len(sys.argv)} more command line argument(s).")
