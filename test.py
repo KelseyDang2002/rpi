@@ -17,6 +17,8 @@ time.sleep(1)
 def promptParameters(on_time, off_time, num_cycles):
     while True:
         try:
+            # on_delay = int(sys.argv[2]) # convert on_delay argument to int
+            
             print("Enter -1 to use default parameters.")
 
             on_delay = int(input("On delay (ms): "))
@@ -68,6 +70,8 @@ def flash(on_delay, off_delay, num_cycles):
             time.sleep(on_delay / 1000)
             # TODO: send on delay to RP2040
             
+            #TODO: send num_cycles or timer limit
+            
             print(f"{i + 1} cycle(s) completed")
 
         except KeyboardInterrupt:
@@ -90,7 +94,8 @@ def onState():
     
     except TypeError:
         print("TypeError: cannot unpack non-iterable NoneType object")
-        return
+        print("\nExiting program...")
+        sys.exit(1)
         
 # turned off
 def offState():
@@ -105,19 +110,19 @@ def helpMenu():
     print("********** HELP MENU **********")
     print("\nFormat for running command via CLI:")
     print("\tpython [file.py] [action] [on_delay] [off_delay] [mode] [value]")
-    print("\n\t0 [file.py] (required)")
+    print("\n\t1 [file.py] (required)")
     print("\t\t- name of the script file")
-    print("\n\t1 [action] (required)")
+    print("\n\t2 [action] (required)")
     print("\t\ton - tell RP2040 microcontroller to turn on")
     print("\t\toff - tell RP2040 microcontroller to turn off")
     print("\t\thelp/h - help menu/how to run script")
-    print("\n\t2 [on_delay]")
+    print("\n\t3 [on_delay] (command line still WIP)")
     print("\t\t- the time for LED to be turned on in milliseconds")
     print("\t\t- default is 800ms unless specified")
-    print("\n\t3 [off_delay]")
+    print("\n\t4 [off_delay] (command line still WIP)")
     print("\t\t- the time for LED to be turned off in millisecondss")
     print("\t\t- default is 200ms unless specified")
-    print("\n\t4 [mode] (required if 'on' is selected)")
+    print("\n\t5 [mode] (required if 'on' is selected)")
     print("\t\tcycle")
     print("\t\t\t- the number of cycles (on and off) for the LED to flash")
     print("\t\t\t- default is 100 unless specified")
@@ -127,7 +132,7 @@ def helpMenu():
     # print("\t\t\t- default is infinite unless specified")
     # print("\t\t\t- either a timer or number of cycles is used, using both not allowed")
     # print("\t\t\t- undecided if it is seconds, minutes, hours, etc.")
-    print("\n\t5 [value]")
+    print("\n\t6 [value]")
     print("\t\t- a number either for number of cycles or amount of time")
 
 # function to handle command line arguments
@@ -135,6 +140,7 @@ def handleCommands():
     print(f"\nEntered: {str(sys.argv)}\n")
         
     action = sys.argv[1].lower()
+    
     if action == 'on':
         # TODO: tell RP2040 to set PIN to HIGH (on)
         # TODO: takes in on_delay, off_delay, mode, and value as parameters
@@ -148,7 +154,7 @@ def handleCommands():
     else:
         print(f"Action Error: '{action}' is an invalid argument.")
         sys.exit(1)
-
+            
 # main loop
 while True:
     try:
