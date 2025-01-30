@@ -104,9 +104,56 @@ def offState():
 # main loop
 while True:
     try:
+        if len(sys.argv) < 6:
+            print(f"Run Error: '{sys.argv[0]}' requires {6 - len(sys.argv)} more command line argument(s).")
+            sys.exit(1)
+        
+        print(f"Entered: {str(sys.argv)}")
+        # print(f"File: {sys.argv[0]}")
+        # print(f"Action: {sys.argv[1]}")
+        # print(f"On Delay: {sys.argv[2]}")
+        # print(f"Off Delay: {sys.argv[3]}")
+        # print(f"Mode: {sys.argv[4]}")
+        # print(f"Value: {sys.argv[5]}")
+
         command = input("\nEnter 'on' or 'off' to control sign or 'q' to quit program: ").strip().lower()
 
-        # TODO: argv implementation
+        # TODO: argc & argv implementation
+        '''
+        Running command via CLI:
+            python [file.py] [action] [on_delay] [off_delay] [mode] [value]
+
+            0 [file.py] (required)
+                - name of the script file
+            
+            1 [action] (required)
+                on - turn on RP2040 microcontroller
+                off - turn off RP2040 microcontroller
+                help - help menu/how to run script
+            
+            2 [on_delay]
+                - the time for LED to be turned on in milliseconds
+                - default is 800ms unless specified
+            
+            3 [off_delay]
+                - the time for LED to be turned off in milliseconds
+                - default is 200ms unless specified
+
+            4 [mode]
+                cycle
+                    - the number of cycles (on and off) for the LED to flash
+                    - default is 0 unless specified
+                    - either number of cycles or a timer is used, using both not allowed
+                
+                timer
+                    - the amount of time for the LED to flash
+                    - default is infinite unless specified
+                    - either a timer or number of cycles is used, using both not allowed
+                    - unsure if it should be in seconds, minutes, hours, etc.
+
+            5 [value] - a number either for number of cycles or amount of time
+        '''
+
         if command == "on":
             onState()
         elif command == "off":
