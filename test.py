@@ -9,17 +9,15 @@ ON_TIME = 800
 OFF_TIME = 200
 NUM_CYCLES = 100
 TIME_LIMIT = 0
-MODE = 'c'
 
 # xiao = serial.Serial(port='/dev/ttyACM0', baudrate=BAUD, timeout=1) # linux
 xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
 time.sleep(1)
 
 # function to handle cycle mode or timer mode
-def mode(num_cycles):
+def mode(num_cycles, time_limit):
     try:
-        # TODO: timer mode
-        mode = sys.argv[4]
+        mode = sys.argv[4].lower()
         if mode == 'cycle' or mode == 'c':
             cycles = int(sys.argv[5])
             
@@ -30,13 +28,25 @@ def mode(num_cycles):
                 num_cycles
             else:
                 return
+            print(f"\tNumber of cycles: {num_cycles}\n")
+            return num_cycles
+            
+        # elif mode == 'timer' or mode == 't':
+        #     timer = int(sys.argv[5])
+
+        #     if timer >= 0:
+        #         time_limit = timer
+        #     elif timer == -1:
+        #         time_limit
+        #     else:
+        #         return
+        #     print(f"\tTime Limit: {time_limit}\n")
+        #     time_limit = time.sleep(time_limit)
+        #     return time_limit
         
         else:
             print(f"Mode Error: '{mode}' is an invalid argument.")
             sys.exit(1)
-                    
-        print(f"\tNumber of cycles: {num_cycles}\n")
-        return num_cycles
     
     except IndexError:
         print("IndexError: Missing a mode command line argument.")
@@ -80,11 +90,10 @@ def delayParameters(on_time, off_time):
             break
 
 # function for flashing LED
-def flash(on_delay, off_delay, num_cycles):
+def flash(on_delay, off_delay, value):
     print("Calling flash function...\n")
     
-    # TODO: experiment with timer
-    for i in range(num_cycles):
+    for i in range(value):
         try:
             xiao.write(b'0')
             time.sleep(off_delay / 1000)
@@ -121,8 +130,9 @@ def onState():
         # if number, off_delay
         # check param after mode is specified
         # if empty, default, otherwise it is specified
+        # separate function to check on params
         on_delay, off_delay = delayParameters(ON_TIME, OFF_TIME)
-        value = mode(NUM_CYCLES)
+        value = mode(NUM_CYCLES, TIME_LIMIT)
         flash(on_delay, off_delay, value)
         return
     
@@ -183,7 +193,6 @@ def handleCommands():
         sys.exit(1)
         
     action = sys.argv[1].lower()
-    
     if action == 'on':
         # TODO: takes in on_delay, off_delay, mode, and value as parameters as argv
         # if no parameters are specified, use default
