@@ -103,7 +103,7 @@ def flash(on_delay, off_delay, value):
             time.sleep(on_delay / 1000)
             # TODO: send on delay to RP2040
             
-            #TODO: send num_cycles or timer limit
+            # TODO: send num_cycles
             
             print(f"{i + 1} cycle(s) completed")
 
