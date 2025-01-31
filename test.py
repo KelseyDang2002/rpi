@@ -90,11 +90,13 @@ def delayParameters(on_time, off_time):
             break
 
 # function for flashing LED
-def flash(on_delay, off_delay, value):
+def flash(on_delay, off_delay):
     print("Calling flash function...\n")
     
     # TODO: might have to make infintie loop
-    for i in range(value):
+    # TODO: remove number of cycles
+    # for i in range(value):
+    while True:
         try:
             xiao.write(b'0')
             time.sleep(off_delay / 1000)
@@ -106,7 +108,7 @@ def flash(on_delay, off_delay, value):
             
             # TODO: send num_cycles
             
-            print(f"{i + 1} cycle(s) completed")
+            # print(f"{i + 1} cycle(s) completed")
 
         except KeyboardInterrupt:
             print("\n\nKeyboardInterrupt: Program interrupted by user.")
@@ -133,8 +135,8 @@ def onState():
         # if empty, default, otherwise it is specified
         # separate function to check on params
         on_delay, off_delay = delayParameters(ON_TIME, OFF_TIME)
-        value = mode(NUM_CYCLES, TIME_LIMIT)
-        flash(on_delay, off_delay, value)
+        # value = mode(NUM_CYCLES, TIME_LIMIT)
+        flash(on_delay, off_delay)
         return
     
     except TypeError:
@@ -154,9 +156,10 @@ def offState():
 def helpMenu():
     print("********** HELP MENU **********")
     print("\nFormat for running command via CLI:")
-    print("\tpython [file.py] [action] [on_delay] [off_delay] [mode] [value]")
+    # print("\tpython [file.py] [action] [on_delay] [off_delay] [mode] [value]")
+    print("\tpython [file.py] [action] [on_delay] [off_delay]")
     print("\n\t1 [file.py] (required)")
-    print("\t\t- name of the script file")
+    print("\t\t- name of the file/program")
     print("\n\t2 [action] (required)")
     print("\t\ton - tell RP2040 microcontroller to turn on")
     print("\t\toff - tell RP2040 microcontroller to turn off")
@@ -169,20 +172,20 @@ def helpMenu():
     print("\t\t- the time for LED to be turned off in millisecondss")
     print("\t\t- default is 200ms unless specified")
     print("\t\t- enter -1 to use default")
-    print("\n\t5 [mode] (required if 'on' is selected)")
-    print("\t\tcycle/c")
-    print("\t\t\t- the number of cycles (on and off) for the LED to flash")
-    print("\t\t\t- default is 100 unless specified")
-    print("\t\t\t- enter -1 to use default")
+    # print("\n\t5 [mode] (required if 'on' is selected)")
+    # print("\t\tcycle/c")
+    # print("\t\t\t- the number of cycles (on and off) for the LED to flash")
+    # print("\t\t\t- default is 100 unless specified")
+    # print("\t\t\t- enter -1 to use default")
     # print("\t\t\t- either number of cycles or a timer is used, using both not allowed")
     # print("\t\ttimer/t")
     # print("\t\t\t- the amount of time for the LED to flash")
     # print("\t\t\t- default is infinite unless specified")
     # print("\t\t\t- either a timer or number of cycles is used, using both not allowed")
     # print("\t\t\t- undecided if it is seconds, minutes, hours, etc.")
-    print("\n\t6 [value]")
-    print("\t\t- a number either for number of cycles or amount of time")
-    print("\t\t- use default values if not specified")
+    # print("\n\t6 [value]")
+    # print("\t\t- a number either for number of cycles or amount of time")
+    # print("\t\t- use default values if not specified")
 
 # function to handle command line arguments
 def handleCommands():
@@ -195,10 +198,11 @@ def handleCommands():
         
     action = sys.argv[1].lower()
     if action == 'on':
-        # TODO: takes in on_delay, off_delay, mode, and value as parameters as argv
+        # TODO: takes in on_delay, and off_delay as parameters as argv
         # if no parameters are specified, use default
-        if len(sys.argv) < 6:
-            print(f"Run Error: '{sys.argv[0]}' requires {6 - len(sys.argv)} more command line argument(s).")
+        # EDIT: cycle mode parameter is no longer required along with num_cycles
+        if len(sys.argv) < 4:
+            print(f"Run Error: '{sys.argv[0]}' requires {4 - len(sys.argv)} more command line argument(s).")
             print(f"Run command 'python {sys.argv[0]} help' to bring up help menu.")
             sys.exit(1)
         
