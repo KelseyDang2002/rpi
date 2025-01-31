@@ -8,6 +8,7 @@ BAUD = 115200
 ON_TIME = 800
 OFF_TIME = 200
 NUM_CYCLES = 100
+TIME_LIMIT = 0
 MODE = 'c'
 
 # xiao = serial.Serial(port='/dev/ttyACM0', baudrate=BAUD, timeout=1) # linux
@@ -45,7 +46,6 @@ def mode(num_cycles):
 def delayParameters(on_time, off_time):
     while True:
         try:
-            
             print("Enter -1 to use default parameters.")
 
             on_delay = int(sys.argv[2]) # convert on_delay argument to int
@@ -115,6 +115,14 @@ def onState():
         if response:
             print(f"XIAO RP2040 says: {response}\n")
 
+        # TODO: check what 3rd param is
+        # if cycle or timer, it is mode
+        # if number, on_delay
+        # check what 4th param is
+        # if cycle or timer, it is mode
+        # if number, off_delay
+        # check param after mode is specified
+        # if empty, default, otherwise it is specified
         on_delay, off_delay = delayParameters(ON_TIME, OFF_TIME)
         value = mode(NUM_CYCLES)
         flash(on_delay, off_delay, value)
@@ -162,36 +170,44 @@ def helpMenu():
     # print("\t\t\t- undecided if it is seconds, minutes, hours, etc.")
     print("\n\t6 [value]")
     print("\t\t- a number either for number of cycles or amount of time")
+    print("\t\t- use default values if not specified")
 
 # function to handle command line arguments
 def handleCommands():
     print(f"\nEntered: {str(sys.argv)}\n")
+    
+    if len(sys.argv) < 2:
+        print(f"Run Error: '{sys.argv[0]}' requires at least {2 - len(sys.argv)} more command line argument.")
+        print(f"Run command 'python {sys.argv[0]} help' to bring up help menu.")
+        sys.exit(1)
         
     action = sys.argv[1].lower()
     
     if action == 'on':
         # TODO: takes in on_delay, off_delay, mode, and value as parameters as argv
         # if no parameters are specified, use default
+        if len(sys.argv) < 6:
+            print(f"Run Error: '{sys.argv[0]}' requires {6 - len(sys.argv)} more command line argument(s).")
+            print(f"Run command 'python {sys.argv[0]} help' to bring up help menu.")
+            sys.exit(1)
+        
         onState()
+    
     elif action == 'off':
         offState()
+    
     elif action == 'help' or action == 'h':
-        # TODO: displays help menu on how to run program
         helpMenu()
+    
     else:
         print(f"Action Error: '{action}' is an invalid argument.")
+        print(f"Run command 'python {sys.argv[0]} help' to bring up help menu.")
         sys.exit(1)
             
 # main loop
 while True:
     try:
-        print(f"\nExecuting program {sys.argv[0]}...")
-        
-        # TODO: define minimum an maximum number of argument for both on state and off state
-        if len(sys.argv) < 2:
-            print(f"Run Error: '{sys.argv[0]}' requires {2 - len(sys.argv)} more command line argument(s).")
-            sys.exit(1)
-        
+        print(f"\nExecuting program {sys.argv[0]}...") 
         handleCommands()
         print("\nExiting program...")
         sys.exit(0)
