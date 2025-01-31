@@ -93,6 +93,7 @@ def delayParameters(on_time, off_time):
 def flash(on_delay, off_delay, value):
     print("Calling flash function...\n")
     
+    # TODO: might have to make infintie loop
     for i in range(value):
         try:
             xiao.write(b'0')
