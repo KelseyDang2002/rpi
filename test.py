@@ -24,10 +24,10 @@ def mode(num_cycles):
             cycles = int(sys.argv[5])
             
             # cycles = int(input("Number of cycles: "))
-            if cycles == -1:
-                print("Use default number of cycles")
-            elif cycles > 0:
+            if cycles > 0:
                 num_cycles = cycles
+            elif cycles == -1:
+                num_cycles
             else:
                 return
         
@@ -46,14 +46,12 @@ def mode(num_cycles):
 def delayParameters(on_time, off_time):
     while True:
         try:
-            print("Enter -1 to use default parameters.")
-
             on_delay = int(sys.argv[2]) # convert on_delay argument to int
             # on_delay = int(input("On delay (ms): "))
             if on_delay > 0:
                 on_time = on_delay
             elif on_delay == -1:
-                print("Use default on delay")
+                on_time
             else:
                 return
             
@@ -62,7 +60,7 @@ def delayParameters(on_time, off_time):
             if off_delay > 0:
                 off_time = off_delay
             elif off_delay == -1:
-                print("Use default off delay")
+                on_time
             else:
                 return
             
@@ -155,13 +153,16 @@ def helpMenu():
     print("\n\t3 [on_delay] (command line still WIP)")
     print("\t\t- the time for LED to be turned on in milliseconds")
     print("\t\t- default is 800ms unless specified")
+    print("\t\t- enter -1 to use default")
     print("\n\t4 [off_delay] (command line still WIP)")
     print("\t\t- the time for LED to be turned off in millisecondss")
     print("\t\t- default is 200ms unless specified")
+    print("\t\t- enter -1 to use default")
     print("\n\t5 [mode] (required if 'on' is selected)")
     print("\t\tcycle/c")
     print("\t\t\t- the number of cycles (on and off) for the LED to flash")
     print("\t\t\t- default is 100 unless specified")
+    print("\t\t\t- enter -1 to use default")
     # print("\t\t\t- either number of cycles or a timer is used, using both not allowed")
     # print("\t\ttimer/t")
     # print("\t\t\t- the amount of time for the LED to flash")
