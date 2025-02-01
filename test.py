@@ -15,27 +15,10 @@ time.sleep(1)
 # prompt user for parameters
 def delayParameters(on_time, off_time):
     try:
-        # use default parameters
         if len(sys.argv) > 4:
             print(f"Input Error: '{sys.argv[0]}' has a maximum of 4 arguments. {len(sys.argv)} were given.")
             print("\nExiting program...")
             sys.exit(1)
-
-        if len(sys.argv) == 2:
-            print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
-            return on_time, off_time
-        
-        # specify on_delay and use default off_delay
-        if len(sys.argv) == 3:
-            on_delay = int(sys.argv[2]) # convert on_delay argument to int
-            if on_delay > 0:
-                on_time = on_delay
-            else:
-                print("Input Error: Only integers larger than 0 are allowed.")
-                print("\nExiting program...")
-                sys.exit(1)
-            print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
-            return on_time, off_time
 
         # specify on_delay and off_delay
         if len(sys.argv) == 4:
@@ -55,8 +38,22 @@ def delayParameters(on_time, off_time):
                 print("\nExiting program...")
                 sys.exit(1)
         
-            print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
-            return on_time, off_time
+        # specify on_delay and use default off_delay
+        if len(sys.argv) == 3:
+            on_delay = int(sys.argv[2]) # convert on_delay argument to int
+            if on_delay > 0:
+                on_time = on_delay
+            else:
+                print("Input Error: Only integers larger than 0 are allowed.")
+                print("\nExiting program...")
+                sys.exit(1)
+    
+        # use default parameters
+        if len(sys.argv) == 2:
+            pass
+        
+        print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
+        return on_time, off_time
     
     except IndexError:
         print("IndexError: List index out of range.")
@@ -166,7 +163,7 @@ def handleCommands():
         print(f"Action Error: '{action}' is an invalid argument.")
         print(f"Run command 'python {sys.argv[0]} help' to bring up help menu.")
         sys.exit(1)
-            
+
 # main
 print(f"Executing program {sys.argv[0]}...") 
 handleCommands()
