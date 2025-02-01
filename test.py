@@ -15,32 +15,51 @@ time.sleep(1)
 # prompt user for parameters
 def delayParameters(on_time, off_time):
     try:
-        # TODO: if no delay parameters are specified, use default
+        # use default parameters
+        if len(sys.argv) > 4:
+            print(f"Input Error: '{sys.argv[0]}' has a maximum of 4 arguments. {len(sys.argv)} were given.")
+            print("\nExiting program...")
+            sys.exit(1)
+
         if len(sys.argv) == 2:
             print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
             return on_time, off_time
+        
+        # specify on_delay and use default off_delay
+        if len(sys.argv) == 3:
+            on_delay = int(sys.argv[2]) # convert on_delay argument to int
+            if on_delay > 0:
+                on_time = on_delay
+            else:
+                print("Input Error: Only integers larger than 0 are allowed.")
+                print("\nExiting program...")
+                sys.exit(1)
+            print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
+            return on_time, off_time
 
-        on_delay = int(sys.argv[2]) # convert on_delay argument to int
-        if on_delay > 0:
-            on_time = on_delay
-        elif on_delay == -1:
-            on_time
-        else:
-            return
+        # specify on_delay and off_delay
+        if len(sys.argv) == 4:
+            on_delay = int(sys.argv[2]) # convert on_delay argument to int
+            if on_delay > 0:
+                on_time = on_delay
+            else:
+                print("Input Error: Only integers larger than 0 are allowed.")
+                print("\nExiting program...")
+                sys.exit(1)
         
-        off_delay = int(sys.argv[3]) # convert off_delay argument to int
-        if off_delay > 0:
-            off_time = off_delay
-        elif off_delay == -1:
-            on_time
-        else:
-            return
+            off_delay = int(sys.argv[3]) # convert off_delay argument to int
+            if off_delay > 0:
+                off_time = off_delay
+            else:
+                print("Input Error: Only integers larger than 0 are allowed.")
+                print("\nExiting program...")
+                sys.exit(1)
         
-        print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
-        return on_time, off_time
+            print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
+            return on_time, off_time
     
     except IndexError:
-        print(f"IndexError: Missing on_delay or off_delay arguments.")
+        print("IndexError: List index out of range.")
         print("\nExiting program...")
         sys.exit(1)
 
@@ -53,7 +72,6 @@ def delayParameters(on_time, off_time):
 def flash(on_delay, off_delay):
     print("\nCalling flash function...")
     
-    # TODO: wait for RP2040 message after its 2 min timer
     i = 0
     while True:
         try:
@@ -73,7 +91,7 @@ def flash(on_delay, off_delay):
             break
     return
 
-# function to wait for RP2040 message after its 2 min timer
+# TODO: function to wait for RP2040 message after its 2 min timer
 def waitForTimeoutMessage():
     pass
     
