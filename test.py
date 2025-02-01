@@ -48,10 +48,7 @@ def delayParameters(on_time, off_time):
                 print("\nExiting program...")
                 sys.exit(1)
     
-        # use default parameters
-        if len(sys.argv) == 2:
-            pass
-        
+        # use default parameters if none of the conditions above apply
         print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
         return on_time, off_time
     
