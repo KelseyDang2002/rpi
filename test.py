@@ -61,46 +61,19 @@ def delayParameters(on_time, off_time):
         print("ValueError: Invalid input. Only numbers allowed.")
         print("\nExiting program...")
         sys.exit(1)
-
-# function for flashing LED
-def flash(on_delay, off_delay):
-    print("\nCalling flash function...")
-    
-    i = 0
-    while True:
-        try:
-            xiao.write(b'0')
-            time.sleep(off_delay / 1000)
-            # TODO: send off delay to RP2040
-            
-            xiao.write(b'1')
-            time.sleep(on_delay / 1000)
-            # TODO: send on delay to RP2040
-            
-            print(f"{i + 1} cycle(s) completed")
-            i += 1
-
-        except KeyboardInterrupt:
-            print("\nKeyboardInterrupt: Program interrupted by user.")
-            break
-    return
-
-# TODO: function to wait for RP2040 message after its 2 min timer
-def waitForTimeoutMessage():
-    pass
     
 # turned on
 def onState():
     try:
-        xiao.write(b'1') # tell RP2040 to turn on MOSFET
+        on_delay, off_delay = delayParameters(ON_TIME, OFF_TIME)
+        message = f"1,{on_delay},{off_delay}\n" 
+        xiao.write(message.encode()) # tell RP2040 to turn on MOSFET
         time.sleep(1)
 
         response = xiao.readline().decode('utf-8').strip()
         if response:
             print(f"XIAO RP2040 says: {response}\n")
 
-        on_delay, off_delay = delayParameters(ON_TIME, OFF_TIME)    
-        flash(on_delay, off_delay)
         return
     
     except TypeError:
@@ -110,7 +83,8 @@ def onState():
         
 # turned off
 def offState():
-    xiao.write(b'0') # tell RP2040 to turn off MOSFET
+    message = f"0\n"
+    xiao.write(message.encode()) # tell RP2040 to turn off MOSFET
 
     response = xiao.readline().decode('utf-8').strip()
     if response:
