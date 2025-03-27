@@ -104,11 +104,11 @@ def helpMenu():
     print("\t\thelp/h - help menu/how to run script")
     print("\n\t3 [on_delay]")
     print("\t\t- the time for LED to be turned on in milliseconds")
-    print("\t\t- omit parameter to use default on delay")
+    print("\t\t- omit parameter to use default on delay ({ON_TIME})")
     print("\t\t- default is 800ms unless specified")
     print("\n\t4 [off_delay]")
     print("\t\t- the time for LED to be turned off in millisecondss")
-    print("\t\t- omit parameter to use default off delay")
+    print("\t\t- omit parameter to use default off delay ({OFF_TIME})")
     print("\t\t- default is 200ms unless specified")
 
 # function to handle command line arguments
