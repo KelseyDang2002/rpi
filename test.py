@@ -5,8 +5,8 @@ import sys
 BAUD = 115200
 
 # cycling paramters by default
-ON_TIME = 800
-OFF_TIME = 200
+ON_TIME = 1000
+OFF_TIME = 1000
 
 # xiao = serial.Serial(port='/dev/ttyACM0', baudrate=BAUD, timeout=1) # linux
 xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
