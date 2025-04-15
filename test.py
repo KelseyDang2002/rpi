@@ -10,10 +10,6 @@ TIMEOUT = 60000 # 1 minute
 ON_TIME = 1000
 OFF_TIME = 1000
 
-# xiao = serial.Serial(port='/dev/ttyACM0', baudrate=BAUD, timeout=1) # linux
-xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
-time.sleep(1)
-
 # prompt user for parameters
 def parameters(timeout, on_time, off_time):
     try:
@@ -31,7 +27,7 @@ def parameters(timeout, on_time, off_time):
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
-            
+
             on_delay = int(sys.argv[3]) # convert on_delay argument to int
             if on_delay > 0:
                 on_time = on_delay
@@ -47,7 +43,7 @@ def parameters(timeout, on_time, off_time):
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
-                
+
         # specify time_out, on_delay, and use default off_delay
         if len(sys.argv) == 4:
             time_out = int(sys.argv[2]) # convert on_delay argument to int
@@ -57,7 +53,7 @@ def parameters(timeout, on_time, off_time):
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
-                
+
             on_delay = int(sys.argv[3]) # convert on_delay argument to int
             if on_delay > 0:
                 on_time = on_delay
@@ -65,7 +61,7 @@ def parameters(timeout, on_time, off_time):
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
-        
+
         # specify time_out and use default on_delay and off_delay
         if len(sys.argv) == 3:
             time_out = int(sys.argv[2]) # convert on_delay argument to int
@@ -75,11 +71,11 @@ def parameters(timeout, on_time, off_time):
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
-    
+
         # use default parameters if none of the conditions above apply
         print(f"Selected:\n\tTimeout: {timeout}ms\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
         return timeout, on_time, off_time
-    
+
     except IndexError:
         print("IndexError: List index out of range.")
         print("\nExiting program...")
@@ -89,12 +85,12 @@ def parameters(timeout, on_time, off_time):
         print("ValueError: Invalid input. Only numbers allowed.")
         print("\nExiting program...")
         sys.exit(1)
-    
+
 # turned on
 def onState():
     try:
         timeout, on_delay, off_delay = parameters(TIMEOUT, ON_TIME, OFF_TIME)
-        message = f"1,{timeout}, {on_delay},{off_delay}\n" 
+        message = f"1,{timeout}, {on_delay},{off_delay}\n"
         xiao.write(message.encode()) # tell RP2040 to turn on MOSFET
         time.sleep(1)
 
@@ -103,12 +99,12 @@ def onState():
             print(f"XIAO RP2040 says: {response}\n")
 
         return
-    
+
     except TypeError:
         print("TypeError: cannot unpack non-iterable NoneType object")
         print("\nExiting program...")
         sys.exit(1)
-        
+
 # turned off
 def offState():
     message = f"0\n"
@@ -146,22 +142,22 @@ def helpMenu():
 # function to handle command line arguments
 def handleCommands():
     print(f"\nEntered: {str(sys.argv)}\n")
-    
+
     if len(sys.argv) < 2:
         print(f"Run Error: '{sys.argv[0]}' requires at least {2 - len(sys.argv)} more command line argument.")
         print(f"Run command 'python {sys.argv[0]} help' to bring up help menu.")
         sys.exit(1)
-        
+
     action = sys.argv[1].lower()
     if action == 'on':
         onState()
-    
+
     elif action == 'off':
         offState()
-    
+
     elif action == 'help' or action == 'h':
         helpMenu()
-    
+
     else:
         print(f"Action Error: '{action}' is an invalid argument.")
         print(f"Run command 'python {sys.argv[0]} help' to bring up help menu.")
@@ -169,13 +165,28 @@ def handleCommands():
 
 # main
 if __name__ == "__main__":
-    print(f"Executing program {sys.argv[0]}...")
-    
+    serial_port = ''
+    microcontroller = 'XIAO RP2040 - Board CDC'
+    devices = {}
     ports = serial.tools.list_ports.comports()
-    print("\nConnected COM Ports:")
+    
+    # list connected serial COM ports
+    print("Connected COM Ports:")
     for port, desc, hwid in sorted(ports):
         print(f"\t{port}: {desc} [{hwid}]")
-    
+        devices[port] = desc
+
+    # select port associated with microcontroller
+    for key, value in devices.items():
+        if value == microcontroller:
+            serial_port = key
+            print(f"\nUsing serial port '{serial_port}'")
+
+    xiao = serial.Serial(port=serial_port, baudrate=BAUD, timeout=1) # linux
+    # xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
+    time.sleep(1)
+
+    print(f"\nExecuting program {sys.argv[0]}...")
     handleCommands()
     print("\nExiting program...")
     sys.exit(0)
