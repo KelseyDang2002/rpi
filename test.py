@@ -15,7 +15,7 @@ xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
 time.sleep(1)
 
 # prompt user for parameters
-def delayParameters(timeout, on_time, off_time):
+def parameters(timeout, on_time, off_time):
     try:
         if len(sys.argv) > 5:
             print(f"Input Error: '{sys.argv[0]}' has a maximum of 5 arguments. {len(sys.argv)} were given.")
@@ -93,7 +93,7 @@ def delayParameters(timeout, on_time, off_time):
 # turned on
 def onState():
     try:
-        timeout, on_delay, off_delay = delayParameters(TIMEOUT, ON_TIME, OFF_TIME)
+        timeout, on_delay, off_delay = parameters(TIMEOUT, ON_TIME, OFF_TIME)
         message = f"1,{timeout}, {on_delay},{off_delay}\n" 
         xiao.write(message.encode()) # tell RP2040 to turn on MOSFET
         time.sleep(1)
