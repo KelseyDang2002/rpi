@@ -123,7 +123,7 @@ def offState():
 def helpMenu():
     print("********** HELP MENU **********")
     print("\nFormat for running command via CLI:")
-    print("\tpython [file.py] [action] [on_delay] [off_delay]")
+    print("\tpython [file.py] [action] [timeout] [on_delay] [off_delay]")
     print("\n\t1 [file.py] (required)")
     print("\t\t- name of the file/program")
     print("\n\t2 [action] (required)")
