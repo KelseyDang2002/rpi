@@ -1,10 +1,12 @@
 import serial # pip3 install pyserial
+import serial.tools.list_ports
 import time
 import sys
 
 BAUD = 115200
 
-# cycling paramters by default
+# paramters by default
+TIMEOUT = 60000 # 1 minute
 ON_TIME = 1000
 OFF_TIME = 1000
 
@@ -13,44 +15,70 @@ xiao = serial.Serial(port='COM3', baudrate=BAUD, timeout=1) # windows
 time.sleep(1)
 
 # prompt user for parameters
-def delayParameters(on_time, off_time):
+def delayParameters(timeout, on_time, off_time):
     try:
-        if len(sys.argv) > 4:
-            print(f"Input Error: '{sys.argv[0]}' has a maximum of 4 arguments. {len(sys.argv)} were given.")
+        if len(sys.argv) > 5:
+            print(f"Input Error: '{sys.argv[0]}' has a maximum of 5 arguments. {len(sys.argv)} were given.")
             print("\nExiting program...")
             sys.exit(1)
 
-        # specify on_delay and off_delay
-        if len(sys.argv) == 4:
-            on_delay = int(sys.argv[2]) # convert on_delay argument to int
+        # specify time_out, on_delay and off_delay
+        if len(sys.argv) == 5:
+            time_out = int(sys.argv[2]) # convert time_out argument to int
+            if time_out > 0:
+                timeout = time_out
+            else:
+                print("Input Error: Only integers larger than 0 are allowed.")
+                print("\nExiting program...")
+                sys.exit(1)
+            
+            on_delay = int(sys.argv[3]) # convert on_delay argument to int
             if on_delay > 0:
                 on_time = on_delay
             else:
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
-        
-            off_delay = int(sys.argv[3]) # convert off_delay argument to int
+
+            off_delay = int(sys.argv[4]) # convert off_delay argument to int
             if off_delay > 0:
                 off_time = off_delay
             else:
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
-        
-        # specify on_delay and use default off_delay
-        if len(sys.argv) == 3:
-            on_delay = int(sys.argv[2]) # convert on_delay argument to int
+                
+        # specify time_out, on_delay, and use default off_delay
+        if len(sys.argv) == 4:
+            time_out = int(sys.argv[2]) # convert on_delay argument to int
+            if time_out > 0:
+                timeout = time_out
+            else:
+                print("Input Error: Only integers larger than 0 are allowed.")
+                print("\nExiting program...")
+                sys.exit(1)
+                
+            on_delay = int(sys.argv[3]) # convert on_delay argument to int
             if on_delay > 0:
                 on_time = on_delay
             else:
                 print("Input Error: Only integers larger than 0 are allowed.")
                 print("\nExiting program...")
                 sys.exit(1)
+        
+        # specify time_out and use default on_delay and off_delay
+        if len(sys.argv) == 3:
+            time_out = int(sys.argv[2]) # convert on_delay argument to int
+            if time_out > 0:
+                timeout = time_out
+            else:
+                print("Input Error: Only integers larger than 0 are allowed.")
+                print("\nExiting program...")
+                sys.exit(1)
     
         # use default parameters if none of the conditions above apply
-        print(f"Selected:\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
-        return on_time, off_time
+        print(f"Selected:\n\tTimeout: {timeout}ms\n\tOn Delay: {on_time}ms\n\tOff Delay: {off_time}ms")
+        return timeout, on_time, off_time
     
     except IndexError:
         print("IndexError: List index out of range.")
@@ -65,8 +93,8 @@ def delayParameters(on_time, off_time):
 # turned on
 def onState():
     try:
-        on_delay, off_delay = delayParameters(ON_TIME, OFF_TIME)
-        message = f"1,{on_delay},{off_delay}\n" 
+        timeout, on_delay, off_delay = delayParameters(TIMEOUT, ON_TIME, OFF_TIME)
+        message = f"1,{timeout}, {on_delay},{off_delay}\n" 
         xiao.write(message.encode()) # tell RP2040 to turn on MOSFET
         time.sleep(1)
 
@@ -102,11 +130,15 @@ def helpMenu():
     print("\t\ton - tell RP2040 microcontroller to turn on")
     print("\t\toff - tell RP2040 microcontroller to turn off")
     print("\t\thelp/h - help menu/how to run script")
-    print("\n\t3 [on_delay]")
+    print("\n\t3 [timeout]")
+    print("\t\t- the time it takes for flashing to turn off after the on command")
+    print("\t\t- omit parameter to use default timeout")
+    print(f"\t\t- default is {TIMEOUT}ms unless specified")
+    print("\n\t4 [on_delay]")
     print("\t\t- the time for LED to be turned on in milliseconds")
     print("\t\t- omit parameter to use default on delay")
     print(f"\t\t- default is {ON_TIME}ms unless specified")
-    print("\n\t4 [off_delay]")
+    print("\n\t5 [off_delay]")
     print("\t\t- the time for LED to be turned off in millisecondss")
     print("\t\t- omit parameter to use default off delay")
     print(f"\t\t- default is {OFF_TIME}ms unless specified")
@@ -136,7 +168,14 @@ def handleCommands():
         sys.exit(1)
 
 # main
-print(f"Executing program {sys.argv[0]}...") 
-handleCommands()
-print("\nExiting program...")
-sys.exit(0)
+if __name__ == "__main__":
+    print(f"Executing program {sys.argv[0]}...")
+    
+    ports = serial.tools.list_ports.comports()
+    print("\nConnected COM Ports:")
+    for port, desc, hwid in sorted(ports):
+        print(f"\t{port}: {desc} [{hwid}]")
+    
+    handleCommands()
+    print("\nExiting program...")
+    sys.exit(0)
