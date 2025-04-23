@@ -2,7 +2,6 @@ import sys
 import time
 from datetime import datetime
 import serial
-import serial.tools.list_ports
 from typing import Optional
 
 # air_temperature = 0x0000
@@ -30,7 +29,7 @@ from typing import Optional
 
 registers = {
     'Air Temperature (C)': 0x0000,
-    'Air Humidity (%)': 0x0002,
+    'Air Humidity (%RH)': 0x0002,
     'Barometric Pressure (Pa)': 0x0004,
     'Light Intensity (lx)': 0x0006,
     'Min Wind Direction (deg)': 0x0008,
@@ -113,7 +112,7 @@ if __name__ == "__main__":
     print(str(sys.argv))
 
     for key, value in registers.items():
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now()
         data = get_data(port='/dev/ttyACM0', baudrate=9600, slave_id=43, start_addr=value)
         data = (int(data, 16))/1000
         print(f"{timestamp}\t{key:35s}{data}")
