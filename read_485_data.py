@@ -1,5 +1,6 @@
 import sys
 import time
+from datetime import datetime
 import serial
 import serial.tools.list_ports
 from typing import Optional
@@ -110,7 +111,10 @@ def get_data(port: str, baudrate: int, slave_id: int, start_addr: int) -> Option
 
 if __name__ == "__main__":
     print(str(sys.argv))
+
     for key, value in registers.items():
+        timestamp = datetime.utcnow().isoformat()
         data = get_data(port='/dev/ttyACM0', baudrate=9600, slave_id=43, start_addr=value)
         data = (int(data, 16))/1000
-        print(f"{key:35s}{data}")
+        print(f"{timestamp} {key:35s}{data}")
+        # save timestamp, key, and value
