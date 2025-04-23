@@ -116,5 +116,5 @@ if __name__ == "__main__":
         timestamp = datetime.utcnow().isoformat()
         data = get_data(port='/dev/ttyACM0', baudrate=9600, slave_id=43, start_addr=value)
         data = (int(data, 16))/1000
-        print(f"{timestamp:4s}{key:35s}{data}")
+        print(f"{timestamp}\t{key:35s}{data}")
         # save timestamp, key, and value
