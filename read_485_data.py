@@ -1,31 +1,12 @@
 import sys
 import time
-from datetime import datetime
+import datetime as dt
 import serial
 from typing import Optional
 
-# air_temperature = 0x0000
-# air_humidity = 0x0002
-# barometric_pressure = 0x0004
-# light_intensity = 0x0006
-# min_wind_direction = 0x0008
-# max_wind_direction = 0x000A
-# avg_wind_direction = 0x000C
-# min_wind_speed = 0x000E
-# max_wind_speed = 0x0010
-# avg_wind_speed = 0x0012
-# acc_rainfall = 0x0014
-# acc_rainfall_duration = 0x0016
-# rain_intensity = 0x0018
-# max_rainfall_intensity = 0x001A
-# heating_temperature = 0x001C
-# tilt_status = 0x001E
-# pm_25 = 0x0030
-# pm_10 = 0x0032
-# co2 = 0x0040
-# noise_intensity = 0x0048 # not available on S1000
-# global_solar_radiation = 0x004A # not available on S1000
-# sunshine_duration = 0x004C # not available on S1000
+PORT = '/dev/ttyACM0'
+BR = 9600
+ID = 43
 
 registers = {
     'Air Temperature (C)': 0x0000,
@@ -49,6 +30,19 @@ registers = {
     'CO2 (ppm)': 0x0040
 }
 
+reg = [
+    0x0000, # air temperature
+    0x0002, # air humidity
+    0x0004, # pressure
+    0x0006, # light intensity
+    0x00CA, # avg wind direction
+    0x0012, # avg wind speed
+    0x0018, # rainfall intensity
+    0x0040, # co2
+    0x0030, # pm2.5
+    0x0032, # pm10
+]
+
 def modbus_crc16(data: bytes) -> bytes:
     crc = 0xFFFF
     for byte in data:
@@ -71,7 +65,7 @@ def build_modbus_request(slave_id: int, function_code: int, start_addr: int, qua
     request += modbus_crc16(request)
     return bytes(request)
 
-def get_data(port: str, baudrate: int, slave_id: int, start_addr: int) -> Optional[bytes]:
+def get_modbus_response(port: str, baudrate: int, slave_id: int, start_addr: int) -> Optional[bytes]:
     try:
         with serial.Serial(
             port=port,
@@ -81,25 +75,22 @@ def get_data(port: str, baudrate: int, slave_id: int, start_addr: int) -> Option
             bytesize=serial.EIGHTBITS,
             timeout=2
         ) as ser:
-            # print(f"Probing Slave ID {slave_id} on port {port}...")
             request = build_modbus_request(
                 slave_id=slave_id,
                 function_code=0x04,
                 start_addr=start_addr,
                 quantity=0x0020
             )
-            # print(f"Request: {request}")
-            # print(f"ser = {ser}")
             ser.write(request)
             response = ser.read(7)
-            time.sleep(0.5)
-            # print(f"Response: {response}")
-            hex_string = response.hex()
+            time.sleep(0.5) # 500ms delay
+            hex_string = response.hex() # convert response to hex string
+
+            # if we recieve a response back
             if len(response) >= 5:
-                # print(f"Device responded: {hex_string}, {type(hex_string)}")
                 return hex_string[-8:]
             else:
-                print(f"No response from Slave ID {slave_id}.")
+                print(f"No response from device with Slave ID {slave_id}.")
                 return None
 
     except serial.SerialException as e:
@@ -108,12 +99,50 @@ def get_data(port: str, baudrate: int, slave_id: int, start_addr: int) -> Option
         print(f"Unexpected error: {e}")
     return None
 
-if __name__ == "__main__":
-    print(str(sys.argv))
-
+def get_measurements() -> list:
+    # loop through register addresses
+    measurements = []
     for key, value in registers.items():
-        timestamp = datetime.now()
-        data = get_data(port='/dev/ttyACM0', baudrate=9600, slave_id=43, start_addr=value)
-        data = (int(data, 16))/1000
-        print(f"{timestamp}\t{key:35s}{data}")
-        # save timestamp, key, and value
+        data = get_modbus_response(port=PORT, baudrate=BR, slave_id=ID, start_addr=value)
+        data = (int(data, 16)) / 1000
+        measurements.append(data)
+        print(f"{key:35s}{data}")
+    return measurements
+
+def assemble_data(curr_date: str, curr_time: str, measurements: list):
+    print(measurements)
+    data_record = []
+    data_record.append('site21') # [0] site number
+    data_record.append(curr_date) # [1] date
+    data_record.append(curr_time) # [2] time
+    data_record.append(0) # [3] zero (no usage)
+    data_record.append(measurements[4]) # [4] avg wind direction
+    data_record.append(measurements[9]) # [5] avg wind speed
+    data_record.append(measurements[18]) # [6] co2
+    data_record.append(measurements[16]) # [7] pm2.5
+    data_record.append(measurements[17]) # [8] pm10
+    data_record.append(measurements[0]) # [9] temperature
+    data_record.append(measurements[1]) # [10] relative humidity
+    data_record.append(measurements[2]) # [11] pressure
+    data_record.append(-1) # [12] co (-1 as placeholder)
+    data_record.append(-1) # [13] no (-1)
+    data_record.append(-1) # [14] no2 (-1)
+    data_record.append(-1) # [15] o3 (-1)
+    data_record.append(-1) # [16] so2 (-1)
+    data_record.append(measurements[3]) # [17] light intensity
+    data_record.append(measurements[13]) # [18] rainfall intensity
+    return data_record
+
+def save_data_to_file(record: list):
+    with open('/dev/shm/test.txt', 'a') as file:
+        file.write(','.join(map(str, record)) + '\n')
+
+if __name__ == "__main__":
+    date = dt.date.today()
+    curr_date = date.strftime('%Y-%m-%d')
+    curr_time = dt.datetime.now().strftime('%H:%M:%S')
+    print(f"{curr_date} {curr_time} {str(sys.argv)}")
+    m = get_measurements()
+    record = assemble_data(curr_date, curr_time, m)
+    print(f"Record: {record}")
+    save_data_to_file(record)
