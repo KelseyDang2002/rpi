@@ -1,7 +1,8 @@
-import serial # pip3 install pyserial
-import serial.tools.list_ports
+import requests
 import time
 import sys
+
+ESP32_IP = "192.168.1.74"
 
 BAUD = 115200
 
@@ -90,14 +91,15 @@ def parameters(timeout, on_time, off_time):
 def onState():
     try:
         timeout, on_delay, off_delay = parameters(TIMEOUT, ON_TIME, OFF_TIME)
-        message = f"1,{timeout}, {on_delay},{off_delay}\n"
-        xiao.write(message.encode()) # tell RP2040 to turn on MOSFET
-        time.sleep(1)
+        # message = f"1,{timeout}, {on_delay},{off_delay}\n"
+        # xiao.write(message.encode()) # tell RP2040 to turn on MOSFET
+        url = f"http://{ESP32_IP}/ledon?timeout={timeout}&on={on_delay}&off{off_delay}"
+        response = requests.get(url).text
+        # time.sleep(1)
 
-        response = xiao.readline().decode('utf-8').strip()
+        # response = xiao.readline().decode('utf-8').strip()
         if response:
             print(f"XIAO RP2040 says: {response}\n")
-
         return
 
     except TypeError:
@@ -107,10 +109,12 @@ def onState():
 
 # turned off
 def offState():
-    message = f"0\n"
-    xiao.write(message.encode()) # tell RP2040 to turn off MOSFET
+    # message = f"0\n"
+    # xiao.write(message.encode()) # tell RP2040 to turn off MOSFET
+    url = f"http://{ESP32_IP}/ledoff"
+    response = requests.get(url).text
 
-    response = xiao.readline().decode('utf-8').strip()
+    # response = xiao.readline().decode('utf-8').strip()
     if response:
         print(f"XIAO RP2040 says: {response}")
     return
@@ -165,27 +169,6 @@ def handleCommands():
 
 # main
 if __name__ == "__main__":
-    serial_port = ''
-    microcontroller = 'XIAO RP2040 - Board CDC'
-    devices = {}
-    ports = serial.tools.list_ports.comports()
-    
-    # list connected serial COM ports
-    print("Connected COM Ports:")
-    for port, desc, hwid in sorted(ports):
-        print(f"\t{port}: {desc} [{hwid}]")
-        devices[port] = desc
-
-    # select port associated with microcontroller
-    for key, value in devices.items():
-        if value == microcontroller:
-            serial_port = key
-            print(f"\nUsing serial port '{serial_port}'")
-
-    # xiao = serial.Serial(port=serial_port, baudrate=BAUD, timeout=1) # linux
-    xiao = serial.Serial(port='COM5', baudrate=BAUD, timeout=1) # windows
-    time.sleep(1)
-
     print(f"\nExecuting program {sys.argv[0]}...")
     handleCommands()
     print("\nExiting program...")
