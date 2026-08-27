@@ -32,6 +32,28 @@ PORT = os.environ.get("RS485_PORT", "/dev/ttyACM0")
 BR = int(os.environ.get("RS485_BAUD", "9600"))
 ID = int(os.environ.get("RS485_SLAVE_ID", "43"))
 
+RECORD_LABELS = [
+    "site",
+    "date",
+    "time",
+    "status",
+    "avg_wind_direction_deg",
+    "avg_wind_speed_m_s",
+    "co2_ppm",
+    "pm25_ug_m3",
+    "pm10_ug_m3",
+    "air_temperature_c",
+    "air_humidity_pct_rh",
+    "barometric_pressure_inhg",
+    "reserved_1",
+    "reserved_2",
+    "reserved_3",
+    "reserved_4",
+    "reserved_5",
+    "light_intensity_lx",
+    "rain_intensity_mm_h",
+]
+
 
 registers = {
     "Air Temperature (C)": 0x0000,
@@ -226,6 +248,8 @@ def save_data_to_file(record: list, curr_date: str):
     filename = f"/dev/shm/{SITE}-{curr_date}.iaqm"
     try:
         with open(filename, "a") as file:
+            if file.tell() == 0:
+                file.write(",".join(RECORD_LABELS) + "\n")
             file.write(",".join(map(str, record)) + "\n")
     except PermissionError as e:
         print(f"Could not write to {filename}: {e}")
