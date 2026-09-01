@@ -30,7 +30,6 @@ output, error, code = get_site_id(
 SITE = output
 PORT = os.environ.get("RS485_PORT", "/dev/ttyACM0")
 BR = int(os.environ.get("RS485_BAUD", "9600"))
-ID = int(os.environ.get("RS485_SLAVE_ID", "43"))
 
 RECORD_LABELS = [
     "site",
@@ -162,7 +161,7 @@ def read_input_registers(
     return response[3:-2]
 
 
-def get_measurements() -> list:
+def get_measurements(slave_id: int) -> list:
     measurement_values = {name: -1 for name in registers}
 
     try:
@@ -177,7 +176,7 @@ def get_measurements() -> list:
             for start_addr, quantity in bulk_reads:
                 payload = read_input_registers(
                     ser=ser,
-                    slave_id=ID,
+                    slave_id=slave_id,
                     start_addr=start_addr,
                     quantity=quantity,
                 )
@@ -244,8 +243,8 @@ def assemble_data(curr_date: str, curr_time: str, measurements: list):
     return data_record
 
 
-def save_data_to_file(record: list, curr_date: str):
-    filename = f"/dev/shm/{SITE}-{curr_date}.iaqm"
+def save_data_to_file(record: list, curr_date: str, sensor_id: str):
+    filename = f"/dev/shm/sensor{sensor_id}-{curr_date}.iaqm"
     try:
         with open(filename, "a") as file:
             if file.tell() == 0:
@@ -256,11 +255,22 @@ def save_data_to_file(record: list, curr_date: str):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <slave_id> <sensor_id>")
+        sys.exit(1)
+
+    try:
+        slave_id = int(sys.argv[1])
+    except ValueError:
+        print(f"Invalid slave ID: {sys.argv[1]!r}. It must be an integer.")
+        sys.exit(1)
+
+    sensor_id = sys.argv[2]
     date = dt.date.today()
     curr_date = date.strftime("%Y-%m-%d")
     curr_time = dt.datetime.now().strftime("%H:%M:%S")
-    print(f"{curr_date} {curr_time} {str(sys.argv)} PORT: {PORT} SLAVE_ID: {ID}")
-    m = get_measurements()
+    print(f"{curr_date} {curr_time} {str(sys.argv)} PORT: {PORT} SLAVE_ID: {slave_id}")
+    m = get_measurements(slave_id)
     record = assemble_data(curr_date, curr_time, m)
     print(f"Record: {record}")
-    save_data_to_file(record, curr_date)
+    save_data_to_file(record, curr_date, sensor_id)
