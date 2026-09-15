@@ -19,8 +19,8 @@ def get_site_id(command):
         return "", str(e), -1
 
 output, error, code = get_site_id("cat /home/vsign/master/siteinfo.conf | grep '^SN' | awk '$1 ~ /^SN/ {print $1}'")
-#SITE = output
-SITE = "site999"
+SITE = output
+# SITE = "site999"
 WAVESHARE = "192.168.2.151"
 PORT = 502
 SLAVE_ID = 43
